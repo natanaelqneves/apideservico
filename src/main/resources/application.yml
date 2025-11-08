@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: API de Servico
+
+  datasource:
+    # URL de conexão com o PostgreSQL.
+    # Assumindo que o banco de dados esteja rodando localmente (localhost:5432 é a porta padrão)
+    url: jdbc:postgresql://localhost:5432/relatorios_de_servicos
+    username: postgres
+    password: 984324
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        # Dialeto específico para o PostgreSQL
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    # Para ver as queries SQL geradas no console (útil em dev)
+    show-sql: true
+    # Para formatar as queries SQL (útil em dev)
+    format_sql: true
