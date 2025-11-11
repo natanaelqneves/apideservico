@@ -3,19 +3,21 @@ package com.nqn.apideservico.controller;
 import com.nqn.apideservico.dto.RelatoriORequestDTO;
 import com.nqn.apideservico.dto.RelatorioResponseDTO;
 import com.nqn.apideservico.service.RelatorioServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("relatorio")
 public class RelatorioController {
 
-    @Autowired
-    private RelatorioServiceImpl relatorioService;
+    private final RelatorioServiceImpl relatorioService;
+
+    public RelatorioController(RelatorioServiceImpl relatorioService) {
+        this.relatorioService = relatorioService;
+    }
 
     @PostMapping
     public ResponseEntity<RelatorioResponseDTO> salvar(@RequestBody RelatoriORequestDTO dto){
@@ -38,6 +40,9 @@ public class RelatorioController {
     @PutMapping("{id}")
     public ResponseEntity<RelatorioResponseDTO> alterarRelatorioPorId(@PathVariable("id") String id, @RequestBody RelatoriORequestDTO dto){
         RelatorioResponseDTO resposta = relatorioService.alterarRelatorioPorId(id, dto);
+        System.out.println("CÓDIGO DENTRO DO CONTROLLER");
+        System.out.println(id);
+        System.out.println(dto);
         return ResponseEntity.ok(resposta);
     }
 
@@ -51,5 +56,10 @@ public class RelatorioController {
     public List<RelatorioResponseDTO> buscarRelatorioPorDataDoServico(@PathVariable("dataInicial") LocalDate dataInicial, @PathVariable("dataFinal") LocalDate dataFinal){
         List<RelatorioResponseDTO> resposta =  relatorioService.buscarPorIntervaloDeDatas(dataInicial, dataFinal);
         return ResponseEntity.ok(resposta).getBody();
+    }
+
+    @DeleteMapping("{id}")
+    public void deletarRelatorioPorId(String id) {
+        relatorioService.deletarRelatorioPorId(id);
     }
 }

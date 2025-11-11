@@ -79,8 +79,11 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public RelatorioResponseDTO alterarRelatorioPorId(String id, RelatoriORequestDTO dtoAlterado) {
+        Relatorio relatorio = repository.findById(id).orElse(null);
         Relatorio relatorioAlterado = new Relatorio(dtoAlterado);
-        relatorioAlterado.setId(id);
+        relatorioAlterado.setId(relatorio.getId());
+        relatorioAlterado.setDataDoServico(relatorio.getDataDoServico());
+        repository.save(relatorioAlterado);
         RelatorioResponseDTO resposta = new RelatorioResponseDTO(relatorioAlterado.getId(), relatorioAlterado.getDataDoServico(), relatorioAlterado.getPlacaDaViatura(), relatorioAlterado.getKmInicial(),
                 relatorioAlterado.getKmFinal(), relatorioAlterado.getAvarias(), relatorioAlterado.isAbastecida());
         return resposta;

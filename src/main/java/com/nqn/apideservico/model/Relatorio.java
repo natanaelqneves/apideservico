@@ -34,8 +34,6 @@ public class Relatorio {
     }
 
     public Relatorio(RelatoriORequestDTO relatorioDTO) {
-        this.id = id;
-        this.dataDoServico = relatorioDTO.dataDoServico();
         this.placaDaViatura = relatorioDTO.placaDaViatura();
         this.kmInicial = relatorioDTO.kmInicial();
         this.kmFinal = relatorioDTO.kmFinal();
