@@ -40,9 +40,6 @@ public class RelatorioController {
     @PutMapping("{id}")
     public ResponseEntity<RelatorioResponseDTO> alterarRelatorioPorId(@PathVariable("id") String id, @RequestBody RelatoriORequestDTO dto){
         RelatorioResponseDTO resposta = relatorioService.alterarRelatorioPorId(id, dto);
-        System.out.println("CÓDIGO DENTRO DO CONTROLLER");
-        System.out.println(id);
-        System.out.println(dto);
         return ResponseEntity.ok(resposta);
     }
 
@@ -59,7 +56,8 @@ public class RelatorioController {
     }
 
     @DeleteMapping("{id}")
-    public void deletarRelatorioPorId(String id) {
+    public ResponseEntity<Void> deletarRelatorioPorId(@PathVariable String id) {
         relatorioService.deletarRelatorioPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }
