@@ -25,21 +25,15 @@ public class RelatorioController {
         return ResponseEntity.ok(resposta);
     }
 
-    @GetMapping
-    public ResponseEntity<List<RelatorioResponseDTO>> buscarRelatorios(){
-        List<RelatorioResponseDTO> resposta = relatorioService.buscarRelatoriosOrdenadosPorData();
-        return ResponseEntity.ok(resposta);
-    }
-
     @GetMapping("{id}")
     public ResponseEntity<RelatorioResponseDTO> buscarRelatorioPorId(@PathVariable String id){
         RelatorioResponseDTO resposta = relatorioService.buscarRelatorioPorID(id);
         return ResponseEntity.ok(resposta);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<RelatorioResponseDTO> alterarRelatorioPorId(@PathVariable("id") String id, @RequestBody RelatoriORequestDTO dto){
-        RelatorioResponseDTO resposta = relatorioService.alterarRelatorioPorId(id, dto);
+    @GetMapping
+    public ResponseEntity<List<RelatorioResponseDTO>> buscarRelatorios(){
+        List<RelatorioResponseDTO> resposta = relatorioService.buscarRelatoriosOrdenadosPorData();
         return ResponseEntity.ok(resposta);
     }
 
@@ -59,6 +53,12 @@ public class RelatorioController {
                 return ResponseEntity.ok(resposta);
             }
         List<RelatorioResponseDTO> resposta = relatorioService.buscarRelatoriosOrdenadosPorData();
+        return ResponseEntity.ok(resposta);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<RelatorioResponseDTO> alterarRelatorioPorId(@PathVariable("id") String id, @RequestBody RelatoriORequestDTO dto){
+        RelatorioResponseDTO resposta = relatorioService.alterarRelatorioPorId(id, dto);
         return ResponseEntity.ok(resposta);
     }
 

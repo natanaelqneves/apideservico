@@ -9,4 +9,6 @@ public record RelatorioResponseDTO(String id,
                                    Integer kmFinal,
                                    String avarias,
                                    Boolean abastecida) {
+
+
 }

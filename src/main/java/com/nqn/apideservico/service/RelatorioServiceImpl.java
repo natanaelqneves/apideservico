@@ -2,12 +2,11 @@ package com.nqn.apideservico.service;
 
 import com.nqn.apideservico.dto.RelatoriORequestDTO;
 import com.nqn.apideservico.dto.RelatorioResponseDTO;
+import com.nqn.apideservico.exceptions.ResourceNotFoundException;
 import com.nqn.apideservico.model.Relatorio;
 import com.nqn.apideservico.repository.RelatorioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -20,64 +19,84 @@ public class RelatorioServiceImpl implements RelatorioService {
     private RelatorioRepository repository;
 
     @Override
-    public RelatorioResponseDTO salvar(@RequestBody RelatoriORequestDTO dto) {
+    public RelatorioResponseDTO salvar(RelatoriORequestDTO dto) {
         Relatorio relatorio = new Relatorio(dto);
-        relatorio.setDataDoServico(LocalDate.now());
         Relatorio relatorioSalvo = repository.save(relatorio);
-        return new RelatorioResponseDTO(relatorioSalvo.getId(), relatorioSalvo.getDataDoServico(), relatorioSalvo.getPlacaDaViatura(), relatorioSalvo.getKmInicial(),
-                relatorioSalvo.getKmFinal(), relatorioSalvo.getAvarias(), relatorioSalvo.isAbastecida());
+
+        return toRelatorioResponseDTO(relatorioSalvo);
     }
 
     @Override
     public RelatorioResponseDTO buscarRelatorioPorID(String id) {
-        Relatorio relatorioEncontrado = repository.findById(id).orElseThrow();
+        Relatorio relatorioEncontrado = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Relatório não encontrado com ID: " + id));
 
         return toRelatorioResponseDTO(relatorioEncontrado);
-    }
-
-
-    @Override
-    public RelatorioResponseDTO buscarRelatorioPorData(LocalDate dataDoServico) {
-        Relatorio relatorio = repository.findByDataDoServico(dataDoServico);
-        RelatorioResponseDTO relatorioDTO = new RelatorioResponseDTO(relatorio.getId(), relatorio.getDataDoServico(), relatorio.getPlacaDaViatura(), relatorio.getKmInicial(),
-                relatorio.getKmFinal(), relatorio.getAvarias(), relatorio.isAbastecida());
-        return relatorioDTO;
     }
 
     @Override
     public List<RelatorioResponseDTO> buscarRelatoriosOrdenadosPorData() {
         List<Relatorio> relatorios = repository.findAllByOrderByDataDoServico();
         List<RelatorioResponseDTO> relatoriosDTO = relatorios.stream()
-                .map(r -> new RelatorioResponseDTO(r.getId(), r.getDataDoServico(), r.getPlacaDaViatura(), r.getKmInicial(),
-                        r.getKmFinal(), r.getAvarias(), r.isAbastecida()))
+                .map(this::toRelatorioResponseDTO)
                 .collect(Collectors.toList());
+
         return relatoriosDTO;
     }
 
     @Override
-    public List<RelatorioResponseDTO> buscarPorIntervaloDeDatas(LocalDate dataInicial, LocalDate dataFinal) {
-        List<Relatorio> relatorios = repository.findAllByDataDoServicoBetween(dataInicial, dataFinal);
+    public RelatorioResponseDTO buscarRelatorioPorData(LocalDate dataDoServico) {
+        Relatorio relatorio = repository.findByDataDoServico(dataDoServico);
 
-        return relatorios.stream()
+        if(relatorio == null) {
+            throw new ResourceNotFoundException("Relatório não encontrado para a data: " + dataDoServico);
+        }
+
+        return toRelatorioResponseDTO(relatorio);
+    }
+
+
+
+    @Override
+    public List<RelatorioResponseDTO> buscarPorIntervaloDeDatas(
+            LocalDate dataInicial,
+            LocalDate dataFinal) {
+
+        List<Relatorio> relatorios = repository.findAllByDataDoServicoBetween(dataInicial, dataFinal);
+        List<RelatorioResponseDTO> relatoriosDTO = relatorios.stream()
                 .sorted(Comparator.comparing(Relatorio::getDataDoServico))
                 .map(this::toRelatorioResponseDTO)
                 .collect(Collectors.toList());
+
+        return relatoriosDTO;
+    }
+
+
+
+    @Override
+    public RelatorioResponseDTO alterarRelatorioPorId(String id, RelatoriORequestDTO dtoAlterado) {
+        Relatorio relatorio = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Não foi possível alterar. Relatório Não encontrado com ID: " + id));
+
+        relatorio.setDataDoServico(dtoAlterado.dataDoServico());
+        relatorio.setPlacaDaViatura(dtoAlterado.placaDaViatura());
+        relatorio.setKmInicial(dtoAlterado.kmInicial());
+        relatorio.setKmFinal(dtoAlterado.kmFinal());
+        relatorio.setAvarias(dtoAlterado.avarias());
+        relatorio.setAbastecida(dtoAlterado.abastecida());
+
+        Relatorio relatorioSalvo = repository.save(relatorio);
+
+        return toRelatorioResponseDTO(relatorioSalvo);
     }
 
     @Override
     public void deletarRelatorioPorId(String id) {
-        repository.deleteById(id);
-    }
+        if(!repository.existsById(id)){
+            throw new ResourceNotFoundException("Não foi possível excluir. Relatorio não encontrado com ID: " + id);
+        }
 
-    @Override
-    public RelatorioResponseDTO alterarRelatorioPorId(String id, RelatoriORequestDTO dtoAlterado) {
-        Relatorio relatorio = repository.findById(id).orElse(null);
-        Relatorio relatorioAlterado = new Relatorio(dtoAlterado);
-        relatorioAlterado.setId(relatorio.getId());
-        relatorioAlterado.setDataDoServico(relatorio.getDataDoServico());
-        repository.save(relatorioAlterado);
-        RelatorioResponseDTO resposta = toRelatorioResponseDTO(relatorioAlterado);
-        return resposta;
+        repository.deleteById(id);
     }
 
     private RelatorioResponseDTO toRelatorioResponseDTO(Relatorio relatorio) {
