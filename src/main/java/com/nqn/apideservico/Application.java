@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackageClasses = RestExceptionHandler.class)
+//@ComponentScan(basePackages = "com.nqn.apideservico.exceptions")
 public class Application {
 
 	public static void main(String[] args) {

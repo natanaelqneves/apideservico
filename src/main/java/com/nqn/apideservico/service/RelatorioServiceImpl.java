@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,10 +29,12 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public RelatorioResponseDTO buscarRelatorioPorID(String id) {
-        Relatorio relatorioEncontrado = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Relatório não encontrado com ID: " + id));
+        Relatorio relatorio = repository.findById(id).orElse(null);
+        if(relatorio == null) {
+            throw new ResourceNotFoundException("Relatório não encontrado com ID: " + id);
+        }
 
-        return toRelatorioResponseDTO(relatorioEncontrado);
+        return toRelatorioResponseDTO(relatorio);
     }
 
     @Override
@@ -92,7 +95,8 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public void deletarRelatorioPorId(String id) {
-        if(!repository.existsById(id)){
+        Relatorio relatorio = repository.findById(id).orElse(null);
+        if(relatorio == null) {
             throw new ResourceNotFoundException("Não foi possível excluir. Relatorio não encontrado com ID: " + id);
         }
 
