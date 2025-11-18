@@ -3,8 +3,12 @@ package com.nqn.apideservico.controller;
 import com.nqn.apideservico.dto.RelatoriORequestDTO;
 import com.nqn.apideservico.dto.RelatorioResponseDTO;
 import com.nqn.apideservico.service.RelatorioServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,9 +24,16 @@ public class RelatorioController {
     }
 
     @PostMapping
-    public ResponseEntity<RelatorioResponseDTO> salvar(@RequestBody RelatoriORequestDTO dto){
+    public ResponseEntity<RelatorioResponseDTO> salvar(@Valid @RequestBody RelatoriORequestDTO dto){
         RelatorioResponseDTO resposta = relatorioService.salvar(dto);
-        return ResponseEntity.ok(resposta);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(resposta.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(resposta);
     }
 
     @GetMapping("{id}")
@@ -57,7 +68,7 @@ public class RelatorioController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<RelatorioResponseDTO> alterarRelatorioPorId(@PathVariable("id") String id, @RequestBody RelatoriORequestDTO dto){
+    public ResponseEntity<RelatorioResponseDTO> alterarRelatorioPorId(@PathVariable("id") String id, @Valid @RequestBody RelatoriORequestDTO dto){
         RelatorioResponseDTO resposta = relatorioService.alterarRelatorioPorId(id, dto);
         return ResponseEntity.ok(resposta);
     }

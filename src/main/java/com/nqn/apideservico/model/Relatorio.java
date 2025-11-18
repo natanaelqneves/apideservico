@@ -4,6 +4,7 @@ import com.nqn.apideservico.dto.RelatoriORequestDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 public class Relatorio {
@@ -23,8 +24,7 @@ public class Relatorio {
     public Relatorio() {
     }
 
-    public Relatorio(String id, LocalDate dataDoServico, String placaDaViatura, Integer kmInicial, Integer kmFinal, String avarias, Boolean abastecida) {
-        this.id = id;
+    public Relatorio(LocalDate dataDoServico, String placaDaViatura, Integer kmInicial, Integer kmFinal, String avarias, Boolean abastecida) {
         this.dataDoServico = dataDoServico;
         this.placaDaViatura = placaDaViatura;
         this.kmInicial = kmInicial;
@@ -44,10 +44,6 @@ public class Relatorio {
 
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public LocalDate getDataDoServico() {
@@ -97,4 +93,16 @@ public class Relatorio {
     public void setAbastecida(Boolean abastecida) {
         this.abastecida = abastecida;
     }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (o == null || getClass() != o.getClass()) return false;
+//        Relatorio relatorio = (Relatorio) o;
+//        return Objects.equals(id, relatorio.id) && Objects.equals(dataDoServico, relatorio.dataDoServico) && Objects.equals(placaDaViatura, relatorio.placaDaViatura) && Objects.equals(kmInicial, relatorio.kmInicial) && Objects.equals(kmFinal, relatorio.kmFinal) && Objects.equals(avarias, relatorio.avarias) && Objects.equals(abastecida, relatorio.abastecida);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id, dataDoServico, placaDaViatura, kmInicial, kmFinal, avarias, abastecida);
+//    }
 }
