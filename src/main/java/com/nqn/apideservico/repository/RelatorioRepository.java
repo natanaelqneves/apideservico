@@ -1,21 +1,19 @@
 package com.nqn.apideservico.repository;
 
 import com.nqn.apideservico.model.Relatorio;
-import com.nqn.apideservico.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface RelatorioRepository extends JpaRepository<Relatorio, String> {
 
-    Relatorio findByIdAndNomeDeUsuario(String id, Usuario usuario);
+    Optional<Relatorio> findById(String id);
 
-    List<Relatorio> findAllByOrderByDataDoServicoAndNomeDeUsuario(Usuario usuario);
+    List<Relatorio> findAllByOrderByDataDoServico();
 
-    Relatorio findAllByDataDoServicoAndNomeDeUsuario(LocalDate dataDoServico, Usuario usuario);
+    List<Relatorio> findAllByDataDoServicoBetween(LocalDate dataDoServico, LocalDate dataFinal);
 
-    List<Relatorio> findAllByDataDoServicoBetweenAndNomeDeUsuario(LocalDate dataDoServico, LocalDate dataFinal, Usuario usuario);
-
-    Relatorio findByDataDoServicoAndNomeDeUsuario(LocalDate dataDoServico, Usuario usuario);
+    Relatorio findByDataDoServico(LocalDate dataDoServico);
 }

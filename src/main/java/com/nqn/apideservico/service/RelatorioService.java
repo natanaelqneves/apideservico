@@ -2,7 +2,6 @@ package com.nqn.apideservico.service;
 
 import com.nqn.apideservico.dto.RelatoriORequestDTO;
 import com.nqn.apideservico.dto.RelatorioResponseDTO;
-import com.nqn.apideservico.model.Usuario;
 
 import java.time.LocalDate;
 import java.util.List;

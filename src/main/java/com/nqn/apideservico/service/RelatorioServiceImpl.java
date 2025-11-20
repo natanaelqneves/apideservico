@@ -4,10 +4,7 @@ import com.nqn.apideservico.dto.RelatoriORequestDTO;
 import com.nqn.apideservico.dto.RelatorioResponseDTO;
 import com.nqn.apideservico.exceptions.ResourceNotFoundException;
 import com.nqn.apideservico.model.Relatorio;
-import com.nqn.apideservico.model.Usuario;
 import com.nqn.apideservico.repository.RelatorioRepository;
-import com.nqn.apideservico.repository.UsuarioRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -18,17 +15,14 @@ import java.util.stream.Collectors;
 public class RelatorioServiceImpl implements RelatorioService {
 
     private RelatorioRepository relatorioRepository;
-    private UsuarioRepository usuarioRepository;
 
-    public RelatorioServiceImpl(RelatorioRepository relatorioRepository, UsuarioRepository usuarioRepository) {
+    public RelatorioServiceImpl(RelatorioRepository relatorioRepository) {
         this.relatorioRepository = relatorioRepository;
-        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
     public RelatorioResponseDTO salvar(RelatoriORequestDTO dto) {
         Relatorio relatorio = new Relatorio(dto);
-        relatorio.setUsuario(buscarUsuarioLogado());
         Relatorio relatorioSalvo = relatorioRepository.save(relatorio);
 
         return toRelatorioResponseDTO(relatorioSalvo);
@@ -36,7 +30,7 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public RelatorioResponseDTO buscarRelatorioPorID(String id) {
-        Relatorio relatorio = relatorioRepository.findByIdAndNomeDeUsuario(id, buscarUsuarioLogado());
+        Relatorio relatorio = relatorioRepository.findById(id).orElse(null);
 
         if(relatorio == null) {
             throw new ResourceNotFoundException("Relatório não encontrado com ID: " + id);
@@ -47,7 +41,7 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public List<RelatorioResponseDTO> buscarRelatoriosOrdenadosPorData() {
-        List<Relatorio> relatorios = relatorioRepository.findAllByOrderByDataDoServicoAndNomeDeUsuario(buscarUsuarioLogado());
+        List<Relatorio> relatorios = relatorioRepository.findAllByOrderByDataDoServico();
         List<RelatorioResponseDTO> relatoriosDTO = relatorios.stream()
                 .map(this::toRelatorioResponseDTO)
                 .collect(Collectors.toList());
@@ -57,7 +51,7 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public RelatorioResponseDTO buscarRelatorioPorData(LocalDate dataDoServico) {
-        Relatorio relatorio = relatorioRepository.findByDataDoServicoAndNomeDeUsuario(dataDoServico, buscarUsuarioLogado());
+        Relatorio relatorio = relatorioRepository.findByDataDoServico(dataDoServico);
 
         if(relatorio == null) {
             throw new ResourceNotFoundException("Relatório não encontrado para a data: " + dataDoServico);
@@ -73,7 +67,7 @@ public class RelatorioServiceImpl implements RelatorioService {
             LocalDate dataInicial,
             LocalDate dataFinal) {
 
-        List<Relatorio> relatorios = relatorioRepository.findAllByDataDoServicoBetweenAndNomeDeUsuario(dataInicial, dataFinal, buscarUsuarioLogado());
+        List<Relatorio> relatorios = relatorioRepository.findAllByDataDoServicoBetween(dataInicial, dataFinal);
 
         if(relatorios == null) {
             throw new ResourceNotFoundException("Não há relatórios para o período especificado: " + dataInicial + " à " + dataFinal + ".");
@@ -93,7 +87,7 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public RelatorioResponseDTO alterarRelatorioPorId(String id, RelatoriORequestDTO dtoAlterado) {
-        Relatorio relatorio = relatorioRepository.findByIdAndNomeDeUsuario(id, buscarUsuarioLogado());
+        Relatorio relatorio = relatorioRepository.findById(id).orElse(null);
         if(relatorio == null) {
             throw new ResourceNotFoundException("Não foi possível alterar. Relatório Não encontrado com ID: " + id);
         }
@@ -113,7 +107,7 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     public void deletarRelatorioPorId(String id) {
-        Relatorio relatorio = relatorioRepository.findByIdAndNomeDeUsuario(id, buscarUsuarioLogado());
+        Relatorio relatorio = relatorioRepository.findById(id).orElse(null);
         if(relatorio == null) {
             throw new ResourceNotFoundException("Não foi possível excluir. Relatorio não encontrado com ID: " + id);
         }
@@ -121,14 +115,7 @@ public class RelatorioServiceImpl implements RelatorioService {
         relatorioRepository.deleteById(id);
     }
 
-    private Usuario buscarUsuarioLogado(){
-        String nomeDeUsuario = SecurityContextHolder.getContext().getAuthentication().getName();
-        Usuario usuario = usuarioRepository.findByNomeDeUsuario(nomeDeUsuario);
-        if(usuario == null) {
-            throw new ResourceNotFoundException("Usuário logado não encontrado.");
-        }
-        return usuario;
-    }
+
 
     private RelatorioResponseDTO toRelatorioResponseDTO(Relatorio relatorio) {
         return new RelatorioResponseDTO(
